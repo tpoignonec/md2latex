@@ -200,3 +200,6 @@ local_config.yml
 
 # Version file
 src/md2latex/_version.py
+
+# Demo output files
+examples/output/

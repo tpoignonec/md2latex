@@ -1,0 +1,43 @@
+# QMS Template Default Metadata
+# This provides default pandoc metadata for QMS documents
+
+# LaTeX Document Settings
+documentclass: "article"
+classoption: ["oneside"]
+geometry: ["margin=2.5cm"]
+fontsize: "11pt"
+linestretch: 1.25
+papersize: "a4paper"
+secnumdepth: 3
+indent: true
+
+# Table of Contents
+toc: true
+toc-depth: 2
+toc-title: "Table of Contents"
+
+# Typography
+numbersections: true
+
+# Links and Colors
+colorlinks: false  # QMS documents often prefer no colored links
+
+# Bibliography defaults
+biblio-style: "ieee"
+biblio-title: "References"
+link-citations: true
+
+# QMS-specific defaults
+PDdoctype: "Quality Document"
+PDrevision: "1.0"
+
+# Template includes
+include-before-body: "titlepage.tex"
+include-after-body: "appendix.tex"
+
+# Custom LaTeX includes for Unicode support only
+header-includes: |
+  \usepackage[utf8]{inputenc}
+  \usepackage[T1]{fontenc}
+  \usepackage{textcomp}
+  \usepackage{lmodern}

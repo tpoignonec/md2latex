@@ -64,7 +64,7 @@ class TestConfig:
         """Test creating config from dictionary."""
         data = {
             'template': {
-                'name': 'academic',
+                'name': 'qms',
                 'font_size': '12pt'
             },
             'metadata': {
@@ -77,7 +77,7 @@ class TestConfig:
         }
         
         config = Config.from_dict(data)
-        assert config.template.name == 'academic'
+        assert config.template.name == 'qms'
         assert config.template.font_size == '12pt'
         assert config.metadata.title == 'Test Document'
         assert config.metadata.author == 'Test Author'
@@ -100,13 +100,13 @@ class TestConfig:
             
             # Create and save config
             config = Config()
-            config.template.name = 'academic'
+            config.template.name = 'qms'
             config.metadata.title = 'YAML Test'
             config.to_yaml(config_path)
             
             # Load config back
             loaded_config = Config.from_yaml(config_path)
-            assert loaded_config.template.name == 'academic'
+            assert loaded_config.template.name == 'qms'
             assert loaded_config.metadata.title == 'YAML Test'
 
     def test_yaml_file_not_found(self):

@@ -123,15 +123,6 @@ class MarkdownConverter:
             working_dir = output_path.parent
         working_dir.mkdir(parents=True, exist_ok=True)
         
-        # Copy template assets if needed
-        if self.config.template.name:
-            try:
-                self.template_manager.copy_template_assets(
-                    self.config.template.name, working_dir
-                )
-            except Exception as e:
-                logger.warning(f'Failed to copy template assets: {e}')
-        
         # Build pandoc command for PDF
         cmd = self._build_pandoc_command(
             input_paths, output_path, 'pdf', working_dir
@@ -197,28 +188,29 @@ class MarkdownConverter:
         else:
             cmd.extend(['--to', 'latex', '--standalone'])
         
-        # Add metadata
-        metadata = self.config.get_pandoc_metadata()
-        for key, value in metadata.items():
-            if isinstance(value, bool):
-                value = str(value).lower()
-            elif isinstance(value, list):
-                for item in value:
-                    cmd.extend(['--metadata', f'{key}={item}'])
-                continue
-            cmd.extend(['--metadata', f'{key}={value}'])
+        # Create and add metadata file
+        metadata_file = self._create_metadata_file(working_dir)
+        if metadata_file:
+            cmd.extend(['--metadata-file', str(metadata_file)])
         
-        # Add template if specified
-        if self.config.template.custom_template_path:
-            template_path = Path(self.config.template.custom_template_path)
-            if template_path.exists():
-                cmd.extend(['--template', str(template_path)])
-        elif self.config.template.name and self.config.template.name != 'default':
+        # Add template includes explicitly for both PDF and LaTeX output
+        # (pandoc doesn't reliably process includes from metadata files)
+        if self.config.template.name and self.config.template.name != 'default':
             try:
-                template_path = self.template_manager.get_template_path(
-                    self.config.template.name
+                # Add titlepage if available
+                titlepage_path = self.template_manager.get_template_component(
+                    self.config.template.name, 'titlepage'
                 )
-                cmd.extend(['--template', str(template_path)])
+                if titlepage_path and titlepage_path.exists():
+                    cmd.extend(['--include-before-body', str(titlepage_path)])
+                
+                # Add appendix if available
+                appendix_path = self.template_manager.get_template_component(
+                    self.config.template.name, 'appendix'
+                )
+                if appendix_path and appendix_path.exists():
+                    cmd.extend(['--include-after-body', str(appendix_path)])
+                    
             except FileNotFoundError:
                 logger.warning(
                     f'Template {self.config.template.name} not found, '
@@ -266,9 +258,52 @@ class MarkdownConverter:
         
         return cmd
     
-    def merge_markdown_files(self, input_files: List[Union[str, Path]], 
-                           output_file: Union[str, Path],
-                           add_page_breaks: bool = True) -> Path:
+    def _create_metadata_file(self, working_dir: Path) -> Optional[Path]:
+        """Create a pandoc metadata file combining template defaults and user config.
+        
+        Args:
+            working_dir: Working directory for the metadata file
+            
+        Returns:
+            Path to the created metadata file, or None if no template
+        """
+        if not self.config.template.name or self.config.template.name == 'default':
+            return None
+        
+        try:
+            # Load template metadata
+            template_metadata = self.template_manager.load_template_metadata(
+                self.config.template.name
+            )
+            
+            # Merge with user configuration
+            combined_metadata = template_metadata.copy()
+            user_metadata = self.config.get_pandoc_metadata()
+            
+            # User metadata overrides template defaults
+            combined_metadata.update(user_metadata)
+            
+            # Remove include directives since we handle them explicitly via
+            # command line
+            combined_metadata.pop('include-before-body', None)
+            combined_metadata.pop('include-after-body', None)
+            
+            # Write metadata file
+            metadata_file = working_dir / 'metadata.yaml'
+            with open(metadata_file, 'w', encoding='utf-8') as f:
+                import yaml
+                yaml.dump(combined_metadata, f, default_flow_style=False,
+                          indent=2)
+            
+            return metadata_file
+            
+        except Exception as e:
+            logger.warning(f'Failed to create metadata file: {e}')
+            return None
+    
+    def merge_markdown_files(self, input_files: List[Union[str, Path]],
+                             output_file: Union[str, Path],
+                             add_page_breaks: bool = True) -> Path:
         """Merge multiple Markdown files into a single file.
         
         Args:

@@ -18,8 +18,6 @@ class TestTemplateManager:
         # Should have the default builtin templates
         assert 'simple' in templates
         assert 'qms' in templates
-        assert 'academic' in templates
-        assert 'prjdoc' in templates
         
         # All should be builtin
         assert templates['simple'] == 'builtin'
@@ -57,42 +55,48 @@ class TestTemplateManager:
             custom_dir = Path(tmpdir)
             manager = TemplateManager(custom_dir)
             
-            template_content = '''
-\\documentclass{article}
-\\begin{document}
-Test template
-\\end{document}
+            # Create custom template directory and metadata
+            template_dir = custom_dir / 'test_template'
+            template_dir.mkdir()
+            
+            metadata_content = '''
+documentclass: article
+fontsize: 12pt
 '''
             
-            template_path = manager.create_custom_template(
-                'test_template', 
-                template_content,
-                custom_dir
-            )
+            with open(template_dir / 'metadata.yaml', 'w') as f:
+                f.write(metadata_content)
             
-            assert template_path.exists()
             assert manager.validate_template('test_template') is True
             
             templates = manager.list_templates()
             assert 'test_template' in templates
             assert templates['test_template'] == 'custom'
 
-    def test_load_template_content(self):
-        """Test loading template content."""
+    def test_load_template_metadata(self):
+        """Test loading template metadata."""
         manager = TemplateManager()
-        content = manager.load_template('simple')
+        metadata = manager.load_template_metadata('simple')
         
-        # Should contain basic LaTeX structure
-        assert '\\documentclass' in content
-        assert '\\begin{document}' in content
-        assert '\\end{document}' in content
+        # Should contain basic configuration
+        assert 'documentclass' in metadata
+        assert metadata['documentclass'] == 'article'
 
-    def test_get_nonexistent_template_path(self):
+    def test_get_template_component(self):
+        """Test getting template components."""
+        manager = TemplateManager()
+        
+        # Should have titlepage component
+        titlepage = manager.get_template_component('simple', 'titlepage')
+        assert titlepage is not None
+        assert titlepage.exists()
+
+    def test_get_nonexistent_template_dir(self):
         """Test error handling for nonexistent template."""
         manager = TemplateManager()
         
         with pytest.raises(FileNotFoundError):
-            manager.get_template_path('nonexistent_template')
+            manager.get_template_dir('nonexistent_template')
 
     def test_custom_template_priority(self):
         """Test that custom templates override builtin ones."""
@@ -101,20 +105,22 @@ Test template
             manager = TemplateManager(custom_dir)
             
             # Create a custom template with same name as builtin
-            custom_content = '''
-\\documentclass{article}
-\\begin{document}
-Custom simple template
-\\end{document}
+            simple_dir = custom_dir / 'simple'
+            simple_dir.mkdir()
+            
+            custom_metadata = '''
+documentclass: article
+fontsize: 14pt
+custom: true
 '''
             
-            custom_path = custom_dir / 'simple.tex'
-            with open(custom_path, 'w') as f:
-                f.write(custom_content)
+            with open(simple_dir / 'metadata.yaml', 'w') as f:
+                f.write(custom_metadata)
             
             # Should load the custom version
-            content = manager.load_template('simple')
-            assert 'Custom simple template' in content
+            metadata = manager.load_template_metadata('simple')
+            assert metadata.get('custom') is True
+            assert metadata.get('fontsize') == '14pt'
             
             # Should still be listed as custom
             templates = manager.list_templates()

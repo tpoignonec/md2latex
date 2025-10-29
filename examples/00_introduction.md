@@ -31,6 +31,10 @@ def hello_world():
     return True
 ```
 
+## Bibliography
+
+You can use citation from a BibTex file [@citation_key].
+
 ## Tables
 
 | Feature | Supported | Notes |

@@ -1,20 +1,18 @@
 """
 Template management for md2latex.
 
-This module handles loading, validation, and management of LaTeX templates
-including default templates and custom user templates.
+This module handles loading and management of modular LaTeX template components
+including metadata files, titlepage templates, and appendix templates.
 """
 
-import os
+import yaml
 import shutil
 from pathlib import Path
-from typing import Dict, List, Optional, Any
-import importlib.resources
-from jinja2 import Environment, FileSystemLoader, Template
+from typing import Dict, Optional, Any
 
 
 class TemplateManager:
-    """Manages LaTeX templates for document generation."""
+    """Manages modular LaTeX templates for document generation."""
     
     def __init__(self, custom_template_dir: Optional[Path] = None):
         """Initialize template manager.
@@ -24,10 +22,8 @@ class TemplateManager:
         """
         self.custom_template_dir = custom_template_dir
         self._builtin_templates = {
-            'simple': 'simple.tex',
-            'qms': 'qms.tex',
-            'academic': 'academic.tex',
-            'prjdoc': 'prjdoc.tex'
+            'simple': 'simple',
+            'qms': 'qms'
         }
         
         # Get builtin templates directory
@@ -47,28 +43,28 @@ class TemplateManager:
         
         # Add custom templates
         if self.custom_template_dir and self.custom_template_dir.exists():
-            for template_file in self.custom_template_dir.glob('*.tex'):
-                name = template_file.stem
-                templates[name] = 'custom'
+            for template_dir in self.custom_template_dir.iterdir():
+                if template_dir.is_dir() and (template_dir / 'metadata.yaml').exists():
+                    templates[template_dir.name] = 'custom'
         
         return templates
     
-    def get_template_path(self, template_name: str) -> Path:
-        """Get the path to a template file.
+    def get_template_dir(self, template_name: str) -> Path:
+        """Get the directory containing a template.
         
         Args:
             template_name: Name of the template
             
         Returns:
-            Path to the template file
+            Path to the template directory
             
         Raises:
             FileNotFoundError: If template is not found
         """
         # Check custom templates first
         if self.custom_template_dir:
-            custom_path = self.custom_template_dir / f'{template_name}.tex'
-            if custom_path.exists():
+            custom_path = self.custom_template_dir / template_name
+            if custom_path.exists() and custom_path.is_dir():
                 return custom_path
         
         # Check builtin templates
@@ -79,58 +75,41 @@ class TemplateManager:
         
         raise FileNotFoundError(f'Template "{template_name}" not found')
     
-    def load_template(self, template_name: str) -> str:
-        """Load template content.
+    def load_template_metadata(self, template_name: str) -> Dict[str, Any]:
+        """Load template metadata from metadata.yaml file.
         
         Args:
             template_name: Name of the template
             
         Returns:
-            Template content as string
+            Template metadata as dictionary
         """
-        template_path = self.get_template_path(template_name)
-        with open(template_path, 'r', encoding='utf-8') as f:
-            return f.read()
+        template_dir = self.get_template_dir(template_name)
+        metadata_file = template_dir / 'metadata.yaml'
+        
+        if not metadata_file.exists():
+            return {}
+        
+        with open(metadata_file, 'r', encoding='utf-8') as f:
+            return yaml.safe_load(f) or {}
     
-    def render_template(self, template_name: str, context: Dict[str, Any]) -> str:
-        """Render a template with given context.
+    def get_template_component(self, template_name: str, component: str) -> Optional[Path]:
+        """Get path to a template component (titlepage.tex, appendix.tex, etc.).
         
         Args:
             template_name: Name of the template
-            context: Variables to use in template rendering
+            component: Component name (e.g., 'titlepage', 'appendix')
             
         Returns:
-            Rendered template content
+            Path to component file if it exists, None otherwise
         """
-        template_content = self.load_template(template_name)
-        template = Template(template_content)
-        return template.render(**context)
-    
-    def copy_template_assets(self, template_name: str, output_dir: Path) -> None:
-        """Copy template assets (styles, images, etc.) to output directory.
+        template_dir = self.get_template_dir(template_name)
+        component_file = template_dir / f'{component}.tex'
         
-        Args:
-            template_name: Name of the template
-            output_dir: Directory to copy assets to
-        """
-        template_path = self.get_template_path(template_name)
-        template_dir = template_path.parent
-        
-        # Look for assets directory next to template
-        assets_dir = template_dir / f'{template_name}_assets'
-        if assets_dir.exists():
-            output_assets = output_dir / 'assets'
-            output_assets.mkdir(exist_ok=True)
-            
-            for asset_file in assets_dir.rglob('*'):
-                if asset_file.is_file():
-                    rel_path = asset_file.relative_to(assets_dir)
-                    output_file = output_assets / rel_path
-                    output_file.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(asset_file, output_file)
+        return component_file if component_file.exists() else None
     
     def validate_template(self, template_name: str) -> bool:
-        """Validate that a template exists and is properly formatted.
+        """Validate that a template exists and has required components.
         
         Args:
             template_name: Name of the template to validate
@@ -139,50 +118,27 @@ class TemplateManager:
             True if template is valid, False otherwise
         """
         try:
-            template_path = self.get_template_path(template_name)
+            template_dir = self.get_template_dir(template_name)
             
-            # Check if file exists and is readable
-            if not template_path.exists():
+            # Check if directory exists
+            if not template_dir.exists():
                 return False
             
-            # Try to read the template
-            with open(template_path, 'r', encoding='utf-8') as f:
-                content = f.read()
+            # Check if metadata.yaml exists
+            metadata_file = template_dir / 'metadata.yaml'
+            if not metadata_file.exists():
+                return False
             
-            # Basic validation - check for required LaTeX structure
-            required_elements = [
-                '\\documentclass',
-                '\\begin{document}',
-                '\\end{document}'
-            ]
+            # Try to load metadata
+            try:
+                self.load_template_metadata(template_name)
+            except Exception:
+                return False
             
-            return all(element in content for element in required_elements)
+            return True
             
         except Exception:
             return False
-    
-    def create_custom_template(self, name: str, content: str, 
-                             custom_dir: Optional[Path] = None) -> Path:
-        """Create a new custom template.
-        
-        Args:
-            name: Name for the new template
-            content: LaTeX template content
-            custom_dir: Directory to save template (uses default if None)
-            
-        Returns:
-            Path to the created template file
-        """
-        if custom_dir is None:
-            custom_dir = self.custom_template_dir or Path.cwd() / 'templates'
-        
-        custom_dir.mkdir(parents=True, exist_ok=True)
-        template_path = custom_dir / f'{name}.tex'
-        
-        with open(template_path, 'w', encoding='utf-8') as f:
-            f.write(content)
-        
-        return template_path
     
     def get_template_info(self, template_name: str) -> Dict[str, Any]:
         """Get information about a template.
@@ -194,23 +150,27 @@ class TemplateManager:
             Dictionary containing template information
         """
         try:
-            template_path = self.get_template_path(template_name)
+            template_dir = self.get_template_dir(template_name)
             templates = self.list_templates()
             
             info = {
                 'name': template_name,
-                'path': str(template_path),
+                'path': str(template_dir),
                 'type': templates.get(template_name, 'unknown'),
-                'exists': template_path.exists(),
+                'exists': template_dir.exists(),
                 'valid': self.validate_template(template_name)
             }
             
-            if template_path.exists():
-                stat = template_path.stat()
-                info.update({
-                    'size': stat.st_size,
-                    'modified': stat.st_mtime
-                })
+            if template_dir.exists():
+                # Check for available components
+                components = []
+                for component in ['titlepage', 'appendix']:
+                    if self.get_template_component(template_name, component):
+                        components.append(component)
+                info['components'] = components
+                
+                # Get metadata
+                info['metadata'] = self.load_template_metadata(template_name)
             
             return info
             

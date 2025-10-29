@@ -1,0 +1,8 @@
+metadata:
+  title: "My Title"
+  author: "The Author"
+  company: "The Company"
+  # Optional metadata fields
+  abstract: |
+    This is an abstract for the document defined in config.yaml.
+  bibliography: references.bib
