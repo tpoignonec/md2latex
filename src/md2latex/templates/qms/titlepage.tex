@@ -1,6 +1,3 @@
-% QMS titlepage template
-% This creates a title page suitable for quality management system documents
-
 \begin{titlepage}
 \thispagestyle{empty}
 \setlength{\parindent}{0mm}
@@ -8,19 +5,19 @@
 \vspace*{\stretch{1}}
 \rule{\linewidth}{1mm}
 \begin{flushleft}
-  {\Huge\textbf{$title$}}\\[5mm]
-  $if(PDdoctype)$$PDdoctype$$else$Quality Document$endif$
+  {\Huge\textbf{\VarTitle}}\\[5mm]
+  \VarSubtitle
 \end{flushleft}
 \rule{\linewidth}{1mm}
 \vspace*{\stretch{1}}
 \begin{center}
-  {\large\textbf{$if(PDrevision)$Revision $PDrevision$$else$Revision 1.0$endif$}}\\
-  $if(date)$$date$$else$\today$endif$
+  {\large\textbf{Revision \VarRevisionNumber}}\\
+  \VarDate
 \end{center}
 \vspace*{\stretch{1}}
 \begin{center}
-  {\large{}Copyright \copyright{} $if(PDcompany)$$PDcompany$$else$Company$endif$}\\
-  $if(author)$$author$$else$Document Author$endif$
+  {\large{}Copyright \copyright{} \VarCopyrightHolder}\\
+  \VarAuthor
 \end{center}
 \vspace*{\stretch{1}}
 
@@ -29,8 +26,12 @@
   \hline
   \textbf{Created:} & \textbf{Reviewed:} & \textbf{Approved:} \\
   \hline
-  & & \\[2cm]
-  \footnotesize{name, dept., date} & \footnotesize{name, dept., date} & \footnotesize{name, dept., date} \\
+  \footnotesize{Name:} & \footnotesize{Name:} & \footnotesize{Name:} \\
+  & & \\[0.1cm]
+  \footnotesize{Role:} & \footnotesize{Role:} & \footnotesize{Role:} \\
+  & & \\[0.1cm]
+  \footnotesize{Signature:} & \footnotesize{Signature:} & \footnotesize{Signature:} \\
+  & & \\[1cm]
   \hline
 \end{tabular}
 \vspace*{\stretch{1}}

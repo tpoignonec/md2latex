@@ -25,5 +25,6 @@ md2latex convert \
     00_introduction.md 01_chapter1.md 02_chapter2.md \
     --config config.yaml \
     --output outputs/qms.pdf \
-    --template qms
+    --template qms \
+    --working-dir .
 ```

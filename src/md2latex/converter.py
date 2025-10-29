@@ -188,6 +188,12 @@ class MarkdownConverter:
         else:
             cmd.extend(['--to', 'latex', '--standalone'])
         
+        # Use custom pandoc template if available
+        template_path = (Path(__file__).parent / 'templates' /
+                         'base_template.tex')
+        if template_path.exists():
+            cmd.extend(['--template', str(template_path)])
+        
         # Create and add metadata file
         metadata_file = self._create_metadata_file(working_dir)
         if metadata_file:
@@ -195,27 +201,42 @@ class MarkdownConverter:
         
         # Add template includes explicitly for both PDF and LaTeX output
         # (pandoc doesn't reliably process includes from metadata files)
-        if self.config.template.name and self.config.template.name != 'default':
-            try:
-                # Add titlepage if available
-                titlepage_path = self.template_manager.get_template_component(
-                    self.config.template.name, 'titlepage'
-                )
-                if titlepage_path and titlepage_path.exists():
-                    cmd.extend(['--include-before-body', str(titlepage_path)])
-                
-                # Add appendix if available
-                appendix_path = self.template_manager.get_template_component(
-                    self.config.template.name, 'appendix'
-                )
-                if appendix_path and appendix_path.exists():
-                    cmd.extend(['--include-after-body', str(appendix_path)])
+        # Skip if using custom titlepage field (handled in template)
+        if (self.config.template.name and 
+            self.config.template.name != 'default'):
+            
+            # Check if we're using the new titlepage field approach
+            metadata_uses_titlepage = False
+            if metadata_file:
+                try:
+                    import yaml
+                    with open(metadata_file, 'r', encoding='utf-8') as f:
+                        metadata_content = yaml.safe_load(f)
+                        metadata_uses_titlepage = 'titlepage' in metadata_content
+                except Exception:
+                    pass
+            
+            if not metadata_uses_titlepage:
+                try:
+                    # Add titlepage if available
+                    titlepage_path = self.template_manager.get_template_component(
+                        self.config.template.name, 'titlepage'
+                    )
+                    if titlepage_path and titlepage_path.exists():
+                        cmd.extend(['--include-before-body', str(titlepage_path)])
                     
-            except FileNotFoundError:
-                logger.warning(
-                    f'Template {self.config.template.name} not found, '
-                    'using default'
-                )
+                    # Add appendix if available
+                    appendix_path = self.template_manager.get_template_component(
+                        self.config.template.name, 'appendix'
+                    )
+                    if appendix_path and appendix_path.exists():
+                        cmd.extend(['--include-after-body', str(appendix_path)])
+                        
+                except FileNotFoundError:
+                    logger.warning(
+                        f'Template {self.config.template.name} not found, '
+                        'using default'
+                    )
         
         # Add resource paths
         resource_paths = self.config.processing.resource_path.copy()
@@ -282,6 +303,23 @@ class MarkdownConverter:
             
             # User metadata overrides template defaults
             combined_metadata.update(user_metadata)
+            
+            # Handle custom titlepage field
+            if 'titlepage' in combined_metadata:
+                try:
+                    titlepage_path = (
+                        self.template_manager.get_template_component(
+                            self.config.template.name, 'titlepage'
+                        )
+                    )
+                    if titlepage_path and titlepage_path.exists():
+                        with open(titlepage_path, 'r', encoding='utf-8') as f:
+                            titlepage_content = f.read()
+                            # Replace the filename with actual content
+                            combined_metadata['titlepage'] = titlepage_content
+                except FileNotFoundError:
+                    # If titlepage file not found, remove the field
+                    combined_metadata.pop('titlepage', None)
             
             # Remove include directives since we handle them explicitly via
             # command line

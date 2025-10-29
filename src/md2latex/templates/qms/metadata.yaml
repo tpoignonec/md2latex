@@ -1,8 +1,10 @@
 # QMS Template Default Metadata
 # This provides default pandoc metadata for QMS documents
 
+copyright_holder: ICube 2025
+
 # LaTeX Document Settings
-documentclass: "article"
+documentclass: "report"
 classoption: ["oneside"]
 geometry: ["margin=2.5cm"]
 fontsize: "11pt"
@@ -27,17 +29,19 @@ biblio-style: "ieee"
 biblio-title: "References"
 link-citations: true
 
-# QMS-specific defaults
-PDdoctype: "Quality Document"
-PDrevision: "1.0"
+# Headers and footers for QMS documents
+header-left: "\\VarAuthor"
+header-center: "\\VarTitle"
+header-right: "Version \\VarRevisionNumber"
+footer-left: ""
+footer-center: "\\thepage"
+footer-right: ""
+header-rule-width: "0.4pt"
+footer-rule-width: "0pt"
 
 # Template includes
-include-before-body: "titlepage.tex"
+titlepage: "titlepage.tex"
 include-after-body: "appendix.tex"
 
-# Custom LaTeX includes for Unicode support only
-header-includes: |
-  \usepackage[utf8]{inputenc}
-  \usepackage[T1]{fontenc}
-  \usepackage{textcomp}
-  \usepackage{lmodern}
+# Custom LaTeX includes
+header-includes: ""
