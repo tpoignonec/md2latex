@@ -36,7 +36,8 @@ md2latex convert \
 ```bash
 md2latex convert \
     00_introduction.md 01_chapter1.md 02_chapter2.md \
-    --config advanced_config.yaml \
-    --output outputs/qms.pdf
+    --config basic_config.yaml \
+    --output outputs/qms.pdf \
+    --template qms
 ```
 

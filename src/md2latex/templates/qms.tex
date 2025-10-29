@@ -34,8 +34,8 @@ $endif$
 \fancyhf{}
 
 % QMS document variables
-\newcommand{\QMSdoctype}{$if(PDdoctype)$$PDdoctype$$else$Quality Document$endif$}
-\newcommand{\QMSprjname}{$if(PDprjname)$$PDprjname$$else$$if(title)$$title$$else$Document$endif$$endif$}
+\newcommand{\QMSdoctype}{$title$}
+\newcommand{\QMSprjname}{$if(PDprjname)$$PDprjname$$else$$if(title)$$title$$else$My project$endif$$endif$}
 \newcommand{\QMSrevision}{$if(PDrevision)$$PDrevision$$else$1.0$endif$}
 \newcommand{\QMSauthor}{$if(author)$$for(author)$$author$$sep$, $endfor$$else$Unknown$endif$}
 \newcommand{\QMScompany}{$if(PDcompany)$$PDcompany$$else$$if(institute)$$for(institute)$$institute$$sep$, $endfor$$endif$$endif$}

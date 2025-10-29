@@ -12,8 +12,10 @@ template:
 
 metadata:
   title: "Custom title"
+  subtitle: "Custom subtitle"
   author: "Custom Author"
   company: "Custom Company"
+  revision_number: 0.1
   abstract: |
     This is a custom abstract for the document defined in custom_config.yaml.
 
