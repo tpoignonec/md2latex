@@ -1,0 +1,6 @@
+metadata:
+  title: "Basic title"
+  author: "Basic Author"
+  company: "Basic Company"
+  abstract: |
+    This is a basic abstract for the document defined in basic_config.yaml.

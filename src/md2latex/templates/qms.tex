@@ -1,0 +1,253 @@
+% QMS Document template for md2latex
+% Based on prjdoc class for quality management system documents
+
+\documentclass[english$if(classoption)$,$for(classoption)$$classoption$$sep$,$endfor$$endif$]{article}
+
+% Required packages
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{textcomp}
+\usepackage{lmodern}
+\usepackage{babel}
+
+$if(linestretch)$
+\usepackage{setspace}
+\setstretch{$linestretch$}
+$endif$
+
+% QMS-specific packages
+\usepackage{amsmath,amssymb}
+\usepackage{longtable,booktabs,array}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{ifthen}
+
+$if(geometry)$
+\usepackage[$for(geometry)$$geometry$$sep$,$endfor$]{geometry}
+$else$
+\usepackage[margin=2.5cm]{geometry}
+$endif$
+
+% Header and footer configuration for QMS documents
+\pagestyle{fancy}
+\fancyhf{}
+
+% QMS document variables
+\newcommand{\QMSdoctype}{$if(PDdoctype)$$PDdoctype$$else$Quality Document$endif$}
+\newcommand{\QMSprjname}{$if(PDprjname)$$PDprjname$$else$$if(title)$$title$$else$Document$endif$$endif$}
+\newcommand{\QMSrevision}{$if(PDrevision)$$PDrevision$$else$1.0$endif$}
+\newcommand{\QMSauthor}{$if(author)$$for(author)$$author$$sep$, $endfor$$else$Unknown$endif$}
+\newcommand{\QMScompany}{$if(PDcompany)$$PDcompany$$else$$if(institute)$$for(institute)$$institute$$sep$, $endfor$$endif$$endif$}
+
+% Header configuration
+\fancyhead[L]{\footnotesize\QMSdoctype}
+\fancyhead[C]{\footnotesize\QMSprjname}
+\fancyhead[R]{\footnotesize Rev. \QMSrevision}
+
+% Footer configuration
+\fancyfoot[L]{\footnotesize\QMScompany}
+\fancyfoot[C]{\footnotesize\QMSauthor}
+\fancyfoot[R]{\footnotesize Page \thepage\ of \pageref{LastPage}}
+
+% Line under header
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Title page for QMS documents
+\newcommand{\QMStitlepage}{%
+  \begin{titlepage}%
+    \thispagestyle{empty}%
+    \setlength{\parindent}{0mm}%
+    \setlength{\parskip}{0mm}%
+    \vspace*{\stretch{1}}%
+    \rule{\linewidth}{1mm}%
+    \begin{flushleft}%
+      {\Huge\textbf{\QMSprjname}}\\[5mm]%
+      \QMSdoctype%
+    \end{flushleft}%
+    \rule{\linewidth}{1mm}%
+    \vspace*{\stretch{1}}%
+    \begin{center}%
+      {\large\textbf{Revision \QMSrevision}}\\%
+      $if(date)$$date$$else$\today$endif$%
+    \end{center}%
+    \vspace*{\stretch{1}}%
+    \begin{center}%
+      $if(PDcompany)$%
+        {\large{}Copyright \copyright{} \QMScompany}\\%
+        \QMSauthor%
+      $else$%
+        {\large{}Copyright \copyright{} \QMSauthor}%
+      $endif$%
+    \end{center}%
+    \vspace*{\stretch{1}}%
+    
+    % QMS signature fields
+    \begin{tabular}{|p{0.3\linewidth}|p{0.3\linewidth}|p{0.3\linewidth}|}%
+      \hline%
+      \textbf{Created:} & \textbf{Reviewed:} & \textbf{Approved:} \\%
+      \hline%
+      & & \\[2cm]%
+      \footnotesize{name, dept., date} & \footnotesize{name, dept., date} & \footnotesize{name, dept., date} \\%
+      \hline%
+    \end{tabular}%
+    \vspace*{\stretch{1}}%
+  \end{titlepage}%
+}
+
+% Code highlighting
+$if(highlighting-macros)$
+$highlighting-macros$
+$endif$
+
+% Tables
+$if(tables)$
+$if(multirow)$
+\usepackage{multirow}
+$endif$
+\usepackage{calc}
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+$endif$
+
+% Graphics
+$if(graphics)$
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+$endif$
+
+% Lists
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% Section numbering
+$if(numbersections)$
+\setcounter{secnumdepth}{$if(secnumdepth)$$secnumdepth$$else$3$endif$}
+$else$
+\setcounter{secnumdepth}{-\maxdimen}
+$endif$
+
+% QMS-specific environments
+\newcounter{QMSrequirement}
+\newenvironment{QMSRequirements}%
+  {%
+    \begin{list}{}%
+    {%
+      \renewcommand{\makelabel}[1]%
+        {%
+          \refstepcounter{QMSrequirement}%
+          \textbf{[REQ-\arabic{QMSrequirement}]}%
+          \ifthenelse{\equal{##1}{}}{}{\label{##1}}%
+          \hfill%
+        }%
+      \setlength{\labelwidth}{6ex}
+      \setlength{\leftmargin}{\labelwidth}%
+      \addtolength{\leftmargin}{\labelsep}%
+    }%
+  }%
+  {%
+    \end{list}%
+  }%
+
+% QMS requirement reference
+\newcommand{\QMSReqRef}[1]{\textbf{REQ-\ref{#1}}}
+
+% Hyperlinks
+\usepackage[unicode]{hyperref}
+\hypersetup{
+$if(title-meta)$
+  pdftitle={$title-meta$},
+$endif$
+$if(author-meta)$
+  pdfauthor={$author-meta$},
+$endif$
+$if(subject)$
+  pdfsubject={$subject$},
+$endif$
+$if(keywords)$
+  pdfkeywords={$for(keywords)$$keywords$$sep$, $endfor$},
+$endif$
+$if(colorlinks)$
+  colorlinks=true,
+  linkcolor={$if(linkcolor)$$linkcolor$$else$black$endif$},
+  filecolor={$if(filecolor)$$filecolor$$else$black$endif$},
+  citecolor={$if(citecolor)$$citecolor$$else$black$endif$},
+  urlcolor={$if(urlcolor)$$urlcolor$$else$blue$endif$},
+$else$
+  hidelinks,
+$endif$
+  pdfcreator={LaTeX via pandoc with md2latex QMS template}}
+
+$for(header-includes)$
+$header-includes$
+$endfor$
+
+\begin{document}
+
+% Generate QMS title page
+\QMStitlepage
+
+$if(abstract)$
+\begin{abstract}
+$abstract$
+\end{abstract}
+\clearpage
+$endif$
+
+$for(include-before)$
+$include-before$
+$endfor$
+
+$if(toc)$
+$if(toc-title)$
+\renewcommand*\contentsname{$toc-title$}
+$endif$
+\tableofcontents
+\clearpage
+$endif$
+
+$if(lof)$
+\listoffigures
+\clearpage
+$endif$
+
+$if(lot)$
+\listoftables
+\clearpage
+$endif$
+
+$body$
+
+$if(natbib)$
+$if(bibliography)$
+$if(biblio-title)$
+$if(has-chapters)$
+\renewcommand\bibname{$biblio-title$}
+$else$
+\renewcommand\refname{$biblio-title$}
+$endif$
+$endif$
+\bibliography{$for(bibliography)$$bibliography$$sep$,$endfor$}
+$endif$
+$endif$
+
+$if(biblatex)$
+\printbibliography$if(biblio-title)$[title=$biblio-title$]$endif$
+$endif$
+
+$for(include-after)$
+$include-after$
+$endfor$
+
+\end{document}

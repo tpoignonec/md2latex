@@ -1,0 +1,24 @@
+template:
+  name: qms
+  # Custom style options
+  # style: article
+  # font_size: 11pt
+  # line_spacing: 1.25
+  # number_sections: true
+  # table_of_contents: true
+  # bibliography_style: ieee
+  # geometry_options:
+  #   - margin=2.5cm
+
+metadata:
+  title: "Custom title"
+  author: "Custom Author"
+  company: "Custom Company"
+  abstract: |
+    This is a custom abstract for the document defined in custom_config.yaml.
+
+processing:
+  latex_engine: pdflatex
+  verbose: true
+  output_latex: true
+  output_pdf: true
