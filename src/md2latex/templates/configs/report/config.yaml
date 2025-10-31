@@ -1,7 +1,14 @@
 document_class: iris-report
 
-copyright_holder: ICube 2025
-
+# Report specific configurations
+disclaimer: |
+  This document is confidential and intended solely for the use of ICube employees and partners.\
+  Unauthorized review, use, disclosure, or distribution is prohibited.\
+  If you are not the intended recipient, please contact the sender and destroy all copies of the original document.
+copyright_year: 2025
+copyright_text: |
+  All rights reserved.
+  No part of this document may be reproduced, stored in a retrieval system, or transmitted in any form or by any means, electronic, mechanical, photocopying, recording, or otherwise, without the prior written permission of ICube.
 
 company: ICube
 company_address: |

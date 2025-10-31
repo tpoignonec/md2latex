@@ -76,7 +76,7 @@ class TemplateManager:
         raise FileNotFoundError(f'Template "{template_name}" not found')
     
     def load_template_metadata(self, template_name: str) -> Dict[str, Any]:
-        """Load template metadata from <template>/config.yaml file.
+        """Load template metadata from config.yaml file.
         
         Args:
             template_name: Name of the template

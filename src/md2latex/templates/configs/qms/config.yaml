@@ -1,2 +1,20 @@
-document_class: "iris-report"
-copyright_holder: ICube 2025
+document_class: iris-qms
+load_config_from: report
+
+# Report specific configurations
+disclaimer: |
+  This document is confidential and intended solely for the use of ICube employees and partners.
+  Unauthorized review, use, disclosure, or distribution is prohibited.
+  If you are not the intended recipient, please contact the sender and destroy all copies of the original document.
+copyright_year: 2025
+copyright_text: |
+  All rights reserved.
+company: ICube
+company_address: |
+  ICube Laboratory, UMR 7357\
+  300 bd Sébastien Brant\
+  CS 10413\
+  F-67412 Illkirch Cedex
+contact: |
+  Thibault Poignonec\
+  Email : <tpoignonec@unistra.fr>

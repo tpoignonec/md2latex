@@ -256,8 +256,8 @@
 %	BIBLIOGRAPHY
 %----------------------------------------------------------------------------------------
 
-% Load biblatex if available, otherwise skip (pandoc can handle citations)
-\IfFileExists{biblatex.sty}{%
+% Load biblatex only if available
+\IfFileExists{biblatex.sty}{
 	\usepackage[
 		backend=biber, % Use the biber backend for compiling the bibliography
 		citestyle=numeric, % In-text citation style
@@ -265,11 +265,13 @@
 	]{biblatex}
 	\newcommand{\sidecite}[2][0pt]{\sidenote[][##1]{\textcite{##2}}} % Parenthetical citations in the margin
 	\newcommand{\fullsidecite}[2][0pt]{\sidenote[][##1]{\fullcite{##2}}} % Full citations in the margin
-}{%
-	% Fallback if biblatex not available
-	\newcommand{\sidecite}[2][0pt]{\sidenote[][##1]{##2}} % Simple citation fallback
-	\newcommand{\fullsidecite}[2][0pt]{\sidenote[][##1]{##2}} % Simple citation fallback
-	\newcommand{\printbibliography}[1][]{}% No-op if biblatex not available
+}{
+	% Use plainbib
+	\usepackage[
+		style=numeric, % Bibliography style
+	]{plainbib} % Fallback bibliography package
+	\newcommand{\sidecite}[2][0pt]{\sidenote[][##1]{\textcite{##2}}} % Parenthetical citations in the margin
+	\newcommand{\fullsidecite}[2][0pt]{\sidenote[][##1]{\fullcite{##2}}} % Full citations in the margin
 }
 
 %----------------------------------------------------------------------------------------
