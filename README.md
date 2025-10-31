@@ -59,3 +59,38 @@ md2latex convert \
     --template qms
 ```
 
+### LaTeX output with custom document class
+
+```bash
+cd examples
+md2latex convert \
+    ../markdown-latex-template/content/01-main.md \
+    --config config.yaml \
+    --output document.tex \
+    --format latex
+```
+
+This will create a `_build/` directory containing:
+- `document.tex` - The generated LaTeX file
+- `iris-report.cls` - The custom document class
+- `metadata.yaml` - The document metadata
+- Any other file required (images, bibliography file, etc.)
+
+You can then compile the LaTeX file manually:
+
+```bash
+cd _build
+pdflatex document.tex
+```
+
+## Working Directory Management
+
+md2latex automatically manages working directories based on the output format:
+
+- **PDF format**: Uses a temporary directory (`/tmp/md2latex_*`) that is cleaned up after generation
+- **LaTeX format**: Uses `_build/` directory next to the config file, containing all files needed to compile the LaTeX document
+
+This ensures that all necessary files (`.tex`, `.cls`, `metadata.yaml`) are in the same directory for easy compilation.
+
+````
+

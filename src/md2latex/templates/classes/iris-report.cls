@@ -104,6 +104,7 @@
 \usepackage[T1]{fontenc} % Output font encoding for international characters
 
 \usepackage{mathpazo} % Use Palatino for math
+\usepackage{amsmath} % Required for math environments like align
 
 % Use standard LaTeX fonts instead of IBM Plex (fallback for systems without plex packages)
 \usepackage{helvet} % Use Helvetica as the sans font

@@ -89,10 +89,23 @@ def convert_markdown_to_pdf(
     template_manager = TemplateManager()
     converter = MarkdownConverter(config, template_manager)
     
+    # Determine working directory: use /tmp for PDF if not specified
+    if working_dir is None:
+        import tempfile
+        working_dir = Path(tempfile.mkdtemp(prefix='md2latex_'))
+    else:
+        working_dir = Path(working_dir)
+    
+    # Prepare output path
+    output_path = Path(output_file)
+    if not output_path.is_absolute():
+        output_path = output_path.resolve()
+    final_output = working_dir / output_path.name
+    
     # Convert to PDF
     return converter.convert_to_pdf(
-        input_files, output_file, 
-        working_dir=Path(working_dir) if working_dir else None
+        input_files, final_output,
+        working_dir=working_dir
     )
 
 
@@ -153,16 +166,37 @@ def convert_markdown_to_latex(
     template_manager = TemplateManager()
     converter = MarkdownConverter(config, template_manager)
     
+    # Determine working directory: use config_dir/_build/ if not specified
+    if working_dir is None:
+        if config_file:
+            config_path = Path(config_file).resolve()
+            working_dir = config_path.parent / '_build'
+        else:
+            # If no config file, use output file's parent directory
+            output_path = Path(output_file).resolve()
+            working_dir = output_path.parent / '_build'
+        working_dir.mkdir(parents=True, exist_ok=True)
+    else:
+        working_dir = Path(working_dir)
+    
+    # Put output .tex file in _build directory with all other build artifacts
+    output_path = Path(output_file)
+    if not output_path.is_absolute():
+        output_path = output_path.resolve()
+    
+    # Place the output file in the working directory (_build)
+    final_output = working_dir / output_path.name
+    
     # Convert to LaTeX
     return converter.convert_to_latex(
-        input_files, output_file,
-        working_dir=Path(working_dir) if working_dir else None
+        input_files, final_output,
+        working_dir=working_dir
     )
 
 
 def create_config_file(
     output_path: Union[str, Path],
-    template: str = 'simple',
+    template: str = 'report',
     metadata: Optional[Dict[str, Any]] = None
 ) -> Path:
     """Create a configuration file with specified settings.
