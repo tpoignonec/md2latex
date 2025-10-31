@@ -35,48 +35,54 @@ def setup_logging(verbose: bool = False) -> None:
 def cmd_convert(args: argparse.Namespace) -> int:
     """Handle the convert command."""
     try:
+        # Load config file (required)
+        if not args.config:
+            print('Error: Config file is required', file=sys.stderr)
+            return 1
+
+        from md2latex.config import Config
+        config = Config.from_yaml(args.config)
+        
+        # Get input files from config
+        if not config.contents.files:
+            print('Error: No input files specified in config file',
+                  file=sys.stderr)
+            return 1
+
+        # Resolve file paths relative to config file directory
+        config_dir = Path(args.config).parent
+        input_files = [str(config_dir / f) for f in config.contents.files]
+
         # Generate output path if not provided
         if not args.output:
-            # Create output directory if it doesn't exist
-            output_dir = Path.cwd() / 'output'
-            output_dir.mkdir(exist_ok=True)
-            
-            # Generate output filename from first input file
-            first_input = Path(args.input[0])
+            # Use config file name as base for output
+            config_path = Path(args.config)
             output_extension = 'pdf' if args.format == 'pdf' else 'tex'
-            output_filename = first_input.stem + '.' + output_extension
-            args.output = output_dir / output_filename
-        else:
-            # Ensure parent directory exists for specified output
-            output_path = Path(args.output)
-            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_filename = config_path.stem + '.' + output_extension
+            args.output = output_filename
+        
+        # Ensure parent directory exists for specified output
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         
         if args.format == 'pdf':
             result_path = convert_markdown_to_pdf(
-                input_files=args.input,
+                input_files=input_files,
                 output_file=args.output,
                 config_file=args.config,
-                template=args.template,
-                metadata={
-                    'title': args.title,
-                    'author': args.author,
-                    'company': args.company,
-                } if any([args.title, args.author, args.company]) else None,
-                working_dir=args.working_dir,
+                template=None,
+                metadata=None,
+                working_dir=None,
                 verbose=args.verbose
             )
         else:  # latex
             result_path = convert_markdown_to_latex(
-                input_files=args.input,
+                input_files=input_files,
                 output_file=args.output,
                 config_file=args.config,
-                template=args.template,
-                metadata={
-                    'title': args.title,
-                    'author': args.author,
-                    'company': args.company,
-                } if any([args.title, args.author, args.company]) else None,
-                working_dir=args.working_dir,
+                template=None,
+                metadata=None,
+                working_dir=None,
                 verbose=args.verbose
             )
         
@@ -192,14 +198,13 @@ def create_parser() -> argparse.ArgumentParser:
     )
     
     convert_parser.add_argument(
-        'input',
-        nargs='+',
-        help='Input Markdown files'
+        'config',
+        help='Configuration YAML file'
     )
     
     convert_parser.add_argument(
         '--output', '-o',
-        help='Output file path (default: output/[input_name].pdf)'
+        help='Output file path (default: [config_name].pdf or .tex)'
     )
     
     convert_parser.add_argument(
@@ -207,37 +212,6 @@ def create_parser() -> argparse.ArgumentParser:
         choices=['pdf', 'latex'],
         default='pdf',
         help='Output format (default: pdf)'
-    )
-    
-    convert_parser.add_argument(
-        '--config', '-c',
-        help='Configuration file path'
-    )
-    
-    convert_parser.add_argument(
-        '--template', '-t',
-        default=None,
-        help='Template name (default: from config or "default")'
-    )
-    
-    convert_parser.add_argument(
-        '--title',
-        help='Document title'
-    )
-    
-    convert_parser.add_argument(
-        '--author',
-        help='Document author'
-    )
-    
-    convert_parser.add_argument(
-        '--company',
-        help='Company name'
-    )
-    
-    convert_parser.add_argument(
-        '--working-dir',
-        help='Working directory for conversion'
     )
     
     # List templates command

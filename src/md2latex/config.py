@@ -43,6 +43,14 @@ class DocumentMetadata:
 
 
 @dataclass
+class ContentConfig:
+    """Content source configuration."""
+
+    content_type: str = 'markdown'  # Content type (e.g., 'markdown')
+    files: List[str] = field(default_factory=list)  # List of input files
+
+
+@dataclass
 class ProcessingOptions:
     """Processing and rendering options."""
     pandoc_options: List[str] = field(default_factory=list)
@@ -57,9 +65,11 @@ class ProcessingOptions:
 @dataclass
 class Config:
     """Main configuration class for md2latex."""
+
     template: TemplateConfig = field(default_factory=TemplateConfig)
     metadata: DocumentMetadata = field(default_factory=DocumentMetadata)
     processing: ProcessingOptions = field(default_factory=ProcessingOptions)
+    contents: ContentConfig = field(default_factory=ContentConfig)
     
     @classmethod
     def from_yaml(cls, config_path: Union[str, Path]) -> 'Config':
@@ -97,19 +107,30 @@ class Config:
         # Extract and validate processing options
         processing_data = data.get('processing', {})
         processing = ProcessingOptions(**{
-            k: v for k, v in processing_data.items() 
+            k: v for k, v in processing_data.items()
             if k in ProcessingOptions.__dataclass_fields__
         })
-        
+
+        # Extract and validate content configuration
+        contents_data = data.get('contents', {})
+        # Map 'type' to 'content_type' if present
+        if 'type' in contents_data:
+            contents_data['content_type'] = contents_data.pop('type')
+        contents = ContentConfig(**{
+            k: v for k, v in contents_data.items()
+            if k in ContentConfig.__dataclass_fields__
+        })
+
         return cls(
             template=template_config,
             metadata=metadata,
-            processing=processing
+            processing=processing,
+            contents=contents
         )
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert configuration to dictionary."""
-        return {
+        result = {
             'template': {
                 k: v for k, v in self.template.__dict__.items()
                 if not k.startswith('_')
@@ -123,6 +144,19 @@ class Config:
                 if not k.startswith('_')
             }
         }
+
+        # Add contents if files are specified
+        if self.contents.files:
+            contents_dict = {
+                k: v for k, v in self.contents.__dict__.items()
+                if not k.startswith('_')
+            }
+            # Map content_type back to type for YAML
+            if 'content_type' in contents_dict:
+                contents_dict['type'] = contents_dict.pop('content_type')
+            result['contents'] = contents_dict
+
+        return result
     
     def to_yaml(self, output_path: Union[str, Path]) -> None:
         """Save configuration to a YAML file."""

@@ -1,6 +1,6 @@
 # Examples
 
-This directory contains sample files and commands demonstrating all features from the main README.md.
+This directory contains sample files and commands demonstrating the md2latex tool.
 
 ## Files to assemble
 
@@ -8,22 +8,53 @@ This directory contains sample files and commands demonstrating all features fro
 - `01_chapter1.md` - First chapter for multi-file documents
 - `02_chapter2.md` - Second chapter for multi-file documents
 
-## Basic Command
+## Configuration File
 
-```bash
-md2latex convert \
-    00_introduction.md 01_chapter1.md 02_chapter2.md \
-    --config config.yaml \
-    --output outputs/simple.pdf
+The `document.yaml` file is the main input to md2latex. It defines the input files and document metadata:
+
+```yaml
+contents:
+  type: markdown
+  files:
+    - 00_introduction.md
+    - 01_chapter1.md
+    - 02_chapter2.md
+
+metadata:
+  title: "My Title"
+  author: "The Author"
+  company: "The Company"
+  document_class: "iris-report"
 ```
 
-### Use templates
+## Basic Usage
 
-For instance to generate a QMS-like document:
+### Generate LaTeX output
+
 ```bash
-md2latex convert \
-    00_introduction.md 01_chapter1.md 02_chapter2.md \
-    --config config.yaml \
-    --output outputs/qms.pdf \
-    --template qms
+md2latex convert document.yaml --format latex
+```
+
+This generates `_build/document.tex` along with all required files (`iris-report.cls`, `metadata.yaml`).
+
+### Generate LaTeX with custom output name
+
+```bash
+md2latex convert document.yaml --format latex --output my_document.tex
+```
+
+This generates `_build/my_document.tex`.
+
+### Generate PDF output
+
+```bash
+md2latex convert document.yaml --format pdf
+```
+
+This generates `document.pdf` in a temporary directory.
+
+### Generate PDF with custom output name
+
+```bash
+md2latex convert document.yaml --format pdf --output my_document.pdf
 ```

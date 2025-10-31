@@ -1,3 +1,10 @@
+contents:
+  type: markdown
+  files:
+    - 00_introduction.md
+    - 01_chapter1.md
+    - 02_chapter2.md
+
 metadata:
   title: "My Title"
   author: "The Author"
