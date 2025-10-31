@@ -172,13 +172,9 @@ $body$
 %	 REFERENCES/BIBLIOGRAPHY
 %----------------------------------------------------------------------------------------
 
-$if(bibliography)$
-	\newpage
 
-	$if(toc)$
-		\addcontentsline{toc}{section}{Reference List} % Add the bibliography to the table of contents
-	$endif$
-	\printbibliography[title=Reference List] % Output the bibliography with a custom section title
+$if(biblatex)$
+\printbibliography$if(biblio-title)$[title=References]$endif$
 $endif$
 %----------------------------------------------------------------------------------------
 %	APPENDICES
