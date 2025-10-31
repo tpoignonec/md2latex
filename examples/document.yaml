@@ -1,5 +1,6 @@
-contents:
-  type: markdown
+document:
+  template: report
+  source: markdown
   files:
     - 00_introduction.md
     - 01_chapter1.md
@@ -12,4 +13,3 @@ metadata:
   # Optional metadata fields
   abstract: ""
   bibliography: references.bib
-  document_class: "iris-report"

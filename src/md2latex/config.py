@@ -15,13 +15,13 @@ from dataclasses import dataclass, field
 @dataclass
 class TemplateConfig:
     """Configuration for LaTeX template selection and parameters."""
-    name: str = "report"
-    style: str = "report"
-    font_size: str = "11pt"
+
+    name: str = 'report'
+    font_size: str = '11pt'
     line_spacing: float = 1.25
     number_sections: bool = True
     table_of_contents: bool = True
-    bibliography_style: str = "ieee"
+    bibliography_style: str = 'ieee'
 
 
 @dataclass
@@ -43,10 +43,11 @@ class DocumentMetadata:
 
 
 @dataclass
-class ContentConfig:
-    """Content source configuration."""
+class DocumentConfig:
+    """Document configuration."""
 
-    content_type: str = 'markdown'  # Content type (e.g., 'markdown')
+    template: str = 'report'  # Template name
+    source: str = 'markdown'  # Source type (e.g., 'markdown')
     files: List[str] = field(default_factory=list)  # List of input files
 
 
@@ -69,7 +70,7 @@ class Config:
     template: TemplateConfig = field(default_factory=TemplateConfig)
     metadata: DocumentMetadata = field(default_factory=DocumentMetadata)
     processing: ProcessingOptions = field(default_factory=ProcessingOptions)
-    contents: ContentConfig = field(default_factory=ContentConfig)
+    document: DocumentConfig = field(default_factory=DocumentConfig)
     
     @classmethod
     def from_yaml(cls, config_path: Union[str, Path]) -> 'Config':
@@ -111,21 +112,18 @@ class Config:
             if k in ProcessingOptions.__dataclass_fields__
         })
 
-        # Extract and validate content configuration
-        contents_data = data.get('contents', {})
-        # Map 'type' to 'content_type' if present
-        if 'type' in contents_data:
-            contents_data['content_type'] = contents_data.pop('type')
-        contents = ContentConfig(**{
-            k: v for k, v in contents_data.items()
-            if k in ContentConfig.__dataclass_fields__
+        # Extract and validate document configuration
+        document_data = data.get('document', {})
+        document = DocumentConfig(**{
+            k: v for k, v in document_data.items()
+            if k in DocumentConfig.__dataclass_fields__
         })
 
         return cls(
             template=template_config,
             metadata=metadata,
             processing=processing,
-            contents=contents
+            document=document
         )
 
     def to_dict(self) -> Dict[str, Any]:
@@ -145,16 +143,13 @@ class Config:
             }
         }
 
-        # Add contents if files are specified
-        if self.contents.files:
-            contents_dict = {
-                k: v for k, v in self.contents.__dict__.items()
+        # Add document if files are specified
+        if self.document.files:
+            document_dict = {
+                k: v for k, v in self.document.__dict__.items()
                 if not k.startswith('_')
             }
-            # Map content_type back to type for YAML
-            if 'content_type' in contents_dict:
-                contents_dict['type'] = contents_dict.pop('content_type')
-            result['contents'] = contents_dict
+            result['document'] = document_dict
 
         return result
     
@@ -191,10 +186,11 @@ class Config:
             pandoc_meta['revision'] = self.metadata.revision
 
         # Template options
-        # Use custom document_class from metadata if specified, otherwise use template.style
-        doc_class = self.metadata.document_class or self.template.style
-        pandoc_meta['documentclass'] = doc_class
-        pandoc_meta['document_class'] = doc_class
+        # Only set document_class if explicitly specified in metadata
+        if self.metadata.document_class:
+            pandoc_meta['documentclass'] = self.metadata.document_class
+            pandoc_meta['document_class'] = self.metadata.document_class
+        
         pandoc_meta['fontsize'] = self.template.font_size
         pandoc_meta['linestretch'] = self.template.line_spacing
         pandoc_meta['numbersections'] = self.template.number_sections

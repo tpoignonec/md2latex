@@ -44,14 +44,14 @@ def cmd_convert(args: argparse.Namespace) -> int:
         config = Config.from_yaml(args.config)
         
         # Get input files from config
-        if not config.contents.files:
+        if not config.document.files:
             print('Error: No input files specified in config file',
                   file=sys.stderr)
             return 1
 
         # Resolve file paths relative to config file directory
         config_dir = Path(args.config).parent
-        input_files = [str(config_dir / f) for f in config.contents.files]
+        input_files = [str(config_dir / f) for f in config.document.files]
 
         # Generate output path if not provided
         if not args.output:
@@ -65,12 +65,15 @@ def cmd_convert(args: argparse.Namespace) -> int:
         output_path = Path(args.output)
         output_path.parent.mkdir(parents=True, exist_ok=True)
         
+        # Get template from document config if available
+        template = config.document.template
+
         if args.format == 'pdf':
             result_path = convert_markdown_to_pdf(
                 input_files=input_files,
                 output_file=args.output,
                 config_file=args.config,
-                template=None,
+                template=template,
                 metadata=None,
                 working_dir=None,
                 verbose=args.verbose
@@ -80,7 +83,7 @@ def cmd_convert(args: argparse.Namespace) -> int:
                 input_files=input_files,
                 output_file=args.output,
                 config_file=args.config,
-                template=None,
+                template=template,
                 metadata=None,
                 working_dir=None,
                 verbose=args.verbose

@@ -72,6 +72,10 @@ def convert_markdown_to_pdf(
     else:
         config = Config()
     
+    # Use template from document config if not explicitly specified
+    if template is None and config.document.template:
+        template = config.document.template
+    
     # Override template if explicitly specified
     if template is not None:
         config.template.name = template
@@ -148,6 +152,10 @@ def convert_markdown_to_latex(
         config = Config.from_yaml(config_file)
     else:
         config = Config()
+    
+    # Use template from document config if not explicitly specified
+    if template is None and config.document.template:
+        template = config.document.template
     
     # Override template if explicitly specified
     if template is not None:

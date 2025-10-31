@@ -44,7 +44,7 @@ class TemplateManager:
         # Add custom templates
         if self.custom_template_dir and self.custom_template_dir.exists():
             for template_dir in self.custom_template_dir.iterdir():
-                if template_dir.is_dir() and (template_dir / 'metadata.yaml').exists():
+                if template_dir.is_dir() and (template_dir / 'config.yaml').exists():
                     templates[template_dir.name] = 'custom'
         
         return templates
@@ -76,7 +76,7 @@ class TemplateManager:
         raise FileNotFoundError(f'Template "{template_name}" not found')
     
     def load_template_metadata(self, template_name: str) -> Dict[str, Any]:
-        """Load template metadata from metadata.yaml file.
+        """Load template metadata from <template>/config.yaml file.
         
         Args:
             template_name: Name of the template
@@ -85,7 +85,7 @@ class TemplateManager:
             Template metadata as dictionary
         """
         template_dir = self.get_template_dir(template_name)
-        metadata_file = template_dir / 'metadata.yaml'
+        metadata_file = template_dir / 'config.yaml'
         
         if not metadata_file.exists():
             return {}
@@ -153,9 +153,8 @@ class TemplateManager:
             # Check if directory exists
             if not template_dir.exists():
                 return False
-            
-            # Check if metadata.yaml exists
-            metadata_file = template_dir / 'metadata.yaml'
+            # Check if config.yaml exists
+            metadata_file = template_dir / 'config.yaml'
             if not metadata_file.exists():
                 return False
             

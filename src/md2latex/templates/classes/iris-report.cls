@@ -1,8 +1,11 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ICube IRIS base report LaTeX Class
 %
-% Based on Sullivan Business Report (license CC BY-NC-SA 4.0)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This class provides a flexible and customizable template for creating
+% internal reports for the ICube Laboratory IRIS platform.
+%
+% Based on Sullivan Business Report Latex class (license CC BY-NC-SA 4.0)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %----------------------------------------------------------------------------------------
 %	CLASS CONFIGURATION
