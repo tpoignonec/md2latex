@@ -1,0 +1,33 @@
+# ---------------------
+# Document metadata
+# ---------------------
+title: "My Title"
+subtitle: "My Subtitle"
+author: "The Author"
+company: "The Company"
+date: "30/10/2025"
+
+# ---------------------
+# Document configuration
+# ---------------------
+documentclass: iris-report
+header-includes: |
+  \leftheadercontent{My Title}
+  \rightheadercontent{Confidential}
+
+  \documentVersion{1.1}
+  \documentStatus{Reviewed}
+  \documentCopyrightYear{2025}
+  \documentCompany{The Company}
+
+  \documentCompanyAddress{Strasbourg, France}
+  \documentContact{The Author}
+  \documentContactEmail{author@example.com}
+
+include-before-body: |
+  % \makedisclaimer
+
+# ---------------------
+# Optional fields
+# ---------------------
+# abstract: ""
