@@ -46,7 +46,7 @@ You can use citation from a BibTex file [@citation_key].
 
 ## Images
 
-![Sample Image](example_image.png){ width=50% }
+![Sample Image](assets/example_image.png){ width=50% }
 
 ## Conclusion
 

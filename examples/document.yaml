@@ -13,4 +13,4 @@ document:
     - 00_introduction.md
     - 01_chapter1.md
     - 02_chapter2.md
-  bibliography: references.bib
+  bibliography: assets/references.bib
