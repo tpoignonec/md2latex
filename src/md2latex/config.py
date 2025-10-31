@@ -49,6 +49,7 @@ class DocumentConfig:
     template: str = 'report'  # Template name
     source: str = 'markdown'  # Source type (e.g., 'markdown')
     files: List[str] = field(default_factory=list)  # List of input files
+    bibliography: Optional[str] = None  # Bibliography file path
 
 
 @dataclass

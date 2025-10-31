@@ -1,3 +1,11 @@
+# Document metadata
+metadata:
+  title: "My Title"
+  author: "The Author"
+  company: "The Company"
+  abstract: ""  # Optional
+
+# Document configuration
 document:
   template: report
   source: markdown
@@ -5,11 +13,4 @@ document:
     - 00_introduction.md
     - 01_chapter1.md
     - 02_chapter2.md
-
-metadata:
-  title: "My Title"
-  author: "The Author"
-  company: "The Company"
-  # Optional metadata fields
-  abstract: ""
   bibliography: references.bib

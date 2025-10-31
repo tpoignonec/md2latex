@@ -255,11 +255,23 @@ class MarkdownConverter:
         
         # Add citation processing if bibliography is configured
         bibliography_path = None
-        for input_file in input_files:
-            bib_file = input_file.parent / 'bibliography.bib'
+        
+        # First check if bibliography is specified in config
+        if self.config.document.bibliography:
+            bib_file = Path(self.config.document.bibliography)
+            # If relative path, resolve relative to first input file
+            if not bib_file.is_absolute() and input_files:
+                bib_file = input_files[0].parent / bib_file
             if bib_file.exists():
                 bibliography_path = bib_file
-                break
+        
+        # Otherwise search for bibliography.bib in input directories
+        if not bibliography_path:
+            for input_file in input_files:
+                bib_file = input_file.parent / 'bibliography.bib'
+                if bib_file.exists():
+                    bibliography_path = bib_file
+                    break
         
         if bibliography_path:
             cmd.extend(['--bibliography', str(bibliography_path)])

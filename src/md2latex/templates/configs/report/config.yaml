@@ -1,2 +1,14 @@
 document_class: iris-report
+
 copyright_holder: ICube 2025
+
+
+company: ICube
+company_address: |
+  ICube Laboratory, UMR 7357\
+  300 bd Sébastien Brant\
+  CS 10413\
+  F-67412 Illkirch Cedex
+contact: |
+  Thibault Poignonec\
+  Email : <tpoignonec@unistra.fr>

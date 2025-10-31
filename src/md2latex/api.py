@@ -104,13 +104,24 @@ def convert_markdown_to_pdf(
     output_path = Path(output_file)
     if not output_path.is_absolute():
         output_path = output_path.resolve()
-    final_output = working_dir / output_path.name
+    
+    # Generate PDF in working directory
+    temp_output = working_dir / output_path.name
     
     # Convert to PDF
-    return converter.convert_to_pdf(
-        input_files, final_output,
+    result = converter.convert_to_pdf(
+        input_files, temp_output,
         working_dir=working_dir
     )
+    
+    # Copy PDF to desired location if different from working directory
+    if output_path != temp_output:
+        import shutil
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(result, output_path)
+        return output_path
+    
+    return result
 
 
 def convert_markdown_to_latex(
