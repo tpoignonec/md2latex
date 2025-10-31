@@ -17,7 +17,7 @@ def convert_markdown_to_pdf(
     input_files: Union[str, Path, List[Union[str, Path]]],
     output_file: Union[str, Path],
     config_file: Optional[Union[str, Path]] = None,
-    template: str = 'simple',
+    template: Optional[str] = None,
     metadata: Optional[Dict[str, Any]] = None,
     working_dir: Optional[Union[str, Path]] = None,
     verbose: bool = False
@@ -72,8 +72,9 @@ def convert_markdown_to_pdf(
     else:
         config = Config()
     
-    # Override template if specified
-    config.template.name = template
+    # Override template if explicitly specified
+    if template is not None:
+        config.template.name = template
     
     # Override metadata if provided
     if metadata:
@@ -99,7 +100,7 @@ def convert_markdown_to_latex(
     input_files: Union[str, Path, List[Union[str, Path]]],
     output_file: Union[str, Path],
     config_file: Optional[Union[str, Path]] = None,
-    template: str = 'simple',
+    template: Optional[str] = None,
     metadata: Optional[Dict[str, Any]] = None,
     working_dir: Optional[Union[str, Path]] = None,
     verbose: bool = False
@@ -135,8 +136,9 @@ def convert_markdown_to_latex(
     else:
         config = Config()
     
-    # Override template if specified
-    config.template.name = template
+    # Override template if explicitly specified
+    if template is not None:
+        config.template.name = template
     
     # Override metadata if provided
     if metadata:

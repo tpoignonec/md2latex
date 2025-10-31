@@ -22,8 +22,8 @@ class TemplateManager:
         """
         self.custom_template_dir = custom_template_dir
         self._builtin_templates = {
-            'simple': 'simple',
-            'qms': 'qms'
+            'qms': 'configs/qms',
+            'report': 'configs/report'
         }
         
         # Get builtin templates directory
@@ -108,6 +108,36 @@ class TemplateManager:
         
         return component_file if component_file.exists() else None
     
+    def get_latex_classes(self) -> Dict[str, Path]:
+        """Get all available LaTeX class files.
+        
+        Returns:
+            Dictionary mapping class names to their file paths
+        """
+        classes = {}
+        classes_dir = self.builtin_dir / 'classes'
+        
+        if classes_dir.exists():
+            for cls_file in classes_dir.glob('*.cls'):
+                class_name = cls_file.stem
+                classes[class_name] = cls_file
+        
+        return classes
+    
+    def get_latex_class_path(self, class_name: str) -> Optional[Path]:
+        """Get path to a specific LaTeX class file.
+        
+        Args:
+            class_name: Name of the LaTeX class (without .cls extension)
+            
+        Returns:
+            Path to class file if it exists, None otherwise
+        """
+        classes_dir = self.builtin_dir / 'classes'
+        cls_file = classes_dir / f'{class_name}.cls'
+        
+        return cls_file if cls_file.exists() else None
+    
     def validate_template(self, template_name: str) -> bool:
         """Validate that a template exists and has required components.
         
@@ -171,6 +201,10 @@ class TemplateManager:
                 
                 # Get metadata
                 info['metadata'] = self.load_template_metadata(template_name)
+                
+                # Add LaTeX class information
+                latex_classes = self.get_latex_classes()
+                info['available_classes'] = list(latex_classes.keys())
             
             return info
             

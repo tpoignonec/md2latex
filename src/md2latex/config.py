@@ -15,17 +15,13 @@ from dataclasses import dataclass, field
 @dataclass
 class TemplateConfig:
     """Configuration for LaTeX template selection and parameters."""
-    name: str = "simple"
-    style: str = "article"
-    margin: str = "3cm"
+    name: str = "report"
+    style: str = "report"
     font_size: str = "11pt"
     line_spacing: float = 1.25
     number_sections: bool = True
     table_of_contents: bool = True
     bibliography_style: str = "ieee"
-    custom_template_path: Optional[str] = None
-    additional_packages: List[str] = field(default_factory=list)
-    geometry_options: List[str] = field(default_factory=lambda: ["margin=3cm"])
 
 
 @dataclass
@@ -43,6 +39,7 @@ class DocumentMetadata:
     document_type: Optional[str] = None
     revision: str = "1.0"
     language: str = "english"
+    document_class: Optional[str] = None  # Custom document class (e.g., "iris-report")
 
 
 @dataclass
@@ -153,21 +150,21 @@ class Config:
         
         # Template-specific metadata
         if self.metadata.company:
-            pandoc_meta['PDcompany'] = self.metadata.company
-        if self.metadata.project_name:
-            pandoc_meta['PDprjname'] = self.metadata.project_name
+            pandoc_meta['company'] = self.metadata.company
         if self.metadata.document_type:
-            pandoc_meta['PDdoctype'] = self.metadata.document_type
+            pandoc_meta['document_type'] = self.metadata.document_type
         if self.metadata.revision:
-            pandoc_meta['PDrevision'] = self.metadata.revision
-        
+            pandoc_meta['revision'] = self.metadata.revision
+
         # Template options
-        pandoc_meta['documentclass'] = self.template.style
+        # Use custom document_class from metadata if specified, otherwise use template.style
+        doc_class = self.metadata.document_class or self.template.style
+        pandoc_meta['documentclass'] = doc_class
+        pandoc_meta['document_class'] = doc_class
         pandoc_meta['fontsize'] = self.template.font_size
         pandoc_meta['linestretch'] = self.template.line_spacing
         pandoc_meta['numbersections'] = self.template.number_sections
         pandoc_meta['toc'] = self.template.table_of_contents
-        pandoc_meta['geometry'] = self.template.geometry_options
         
         return pandoc_meta
 

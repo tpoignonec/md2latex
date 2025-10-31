@@ -190,9 +190,12 @@ class MarkdownConverter:
         
         # Use custom pandoc template if available
         template_path = (Path(__file__).parent / 'templates' /
-                         'base_template.tex')
+                         'pandoc_template.tex')
         if template_path.exists():
             cmd.extend(['--template', str(template_path)])
+            
+            # Copy required LaTeX class files to working directory
+            self._copy_latex_classes(working_dir)
         
         # Create and add metadata file
         metadata_file = self._create_metadata_file(working_dir)
@@ -278,6 +281,23 @@ class MarkdownConverter:
             logger.info(f'Pandoc command: {" ".join(cmd)}')
         
         return cmd
+    
+    def _copy_latex_classes(self, working_dir: Path) -> None:
+        """Copy LaTeX class files to the working directory.
+        
+        Args:
+            working_dir: Working directory for conversion
+        """
+        classes_dir = Path(__file__).parent / 'templates' / 'classes'
+        if not classes_dir.exists():
+            return
+            
+        for cls_file in classes_dir.glob('*.cls'):
+            dest_file = working_dir / cls_file.name
+            if not dest_file.exists():
+                shutil.copy2(cls_file, dest_file)
+                logger.debug(f'Copied LaTeX class: {cls_file.name} to {dest_file}')
+    
     
     def _create_metadata_file(self, working_dir: Path) -> Optional[Path]:
         """Create a pandoc metadata file combining template defaults and user config.

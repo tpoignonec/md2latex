@@ -216,8 +216,8 @@ def create_parser() -> argparse.ArgumentParser:
     
     convert_parser.add_argument(
         '--template', '-t',
-        default='simple',
-        help='Template name (default: simple)'
+        default=None,
+        help='Template name (default: from config or "default")'
     )
     
     convert_parser.add_argument(

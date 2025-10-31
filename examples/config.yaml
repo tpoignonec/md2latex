@@ -5,3 +5,4 @@ metadata:
   # Optional metadata fields
   abstract: ""
   bibliography: references.bib
+  document_class: "iris-report"
